@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "bilisync",
+  "productName": "bilicong",
   "version": "0.1.1",
-  "identifier": "top.bciireal.bilisync",
+  "identifier": "top.bciireal.bilicong",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "bilisync",
+        "title": "bilicong",
         "width": 800,
         "height": 600
       }

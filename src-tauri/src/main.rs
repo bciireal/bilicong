@@ -3,5 +3,5 @@
 #![warn(clippy::pedantic)]
 
 fn main() {
-    bilisync_backend_lib::run();
+    bilicong_backend_lib::run();
 }

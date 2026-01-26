@@ -1,5 +1,5 @@
 [package]
-name = "bilisync_backend"
+name = "bilicong_backend"
 version = "0.1.1"
 edition = "2024"
 
@@ -10,7 +10,7 @@ codegen-units = 1
 panic = "abort"
 
 [lib]
-name = "bilisync_backend_lib"
+name = "bilicong_backend_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

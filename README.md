@@ -1,18 +1,23 @@
-# BiliSync
+# BiliCong
 
 B 站手机版缓存视频导出工具
 
 ## 使用方法
 
-- 到 release 处下载
+- 打开手机开发者模式 -> USB 调试
+- 到 [Github Release](https://github.com/bciireal/bilicong/releases/latest) 处下载压缩包
 - 全部解压
-- 运行 `bilisync_backend.exe`
+- 运行 `bilicong_backend.exe`
 
 ## 构建方法
 
-- 安装依赖: Node.js Rust
+- 安装依赖
+  - Node.js
+  - Rust
+  - adb
+  - ffmpeg
 - `npm i`
-- `npx tauri dev` 或 `npx tauri build`
+- `npx tauri dev` (开发) 或 `npx tauri build` (构建)
 
 ## TODO
 
