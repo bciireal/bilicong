@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "bilisync",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "identifier": "top.bciireal.bilisync",
   "build": {
     "frontendDist": "../dist",

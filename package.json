@@ -1,7 +1,7 @@
 {
   "name": "bilisync_frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,7 +23,7 @@
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.7.0",
-    "globals": "^17.0.0",
+    "globals": "^17.1.0",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.1.18",
     "vite": "^7.3.1"
