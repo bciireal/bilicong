@@ -118,7 +118,10 @@ pub fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> Result
         target_path.join(entry_info.file_name()),
     )?;
 
+    // Consume ownership to satisfy the function signature
     drop(entry_info);
+
+    // Ensure `temp_path` are dropped after transcoding is complete
     drop(temp_path);
     Ok(())
 }

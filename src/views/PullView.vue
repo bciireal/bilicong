@@ -52,7 +52,7 @@ const startSync = async () => {
 
   for (let i = 0; i < selected.length; i++) {
     const entry_info = selected[i];
-    icon_msg.value = `导出中: ${i + 1}/${selected.length} 当前视频 ${entry_info.title}`;
+    icon_msg.value = `导出中: ${i + 1}/${selected.length} ${entry_info.title}`;
 
     try {
       await pullMedia(device_sid, target_path.value, entry_info);
