@@ -32,5 +32,103 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: bilicong_x86_64_win32
+          name: bilicong_win64_raw
           path: src-tauri\target\release\bilicong_backend.exe
+          if-no-files-found: error
+
+  ffmpeg:
+    runs-on: windows-latest
+
+    steps:
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: |
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-nasm
+            make
+            git
+            diffutils
+
+      - name: Download FFmpeg source
+        shell: msys2 {0}
+        run: |
+          git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git ffmpeg-src
+
+      - name: Configure FFmpeg
+        shell: msys2 {0}
+        run: |
+          cd ffmpeg-src
+          ./configure \
+            --arch=x86_64 \
+            --disable-encoders \
+            --disable-decoders \
+            --disable-filters \
+            --disable-bsfs \
+            --disable-devices \
+            --disable-autodetect \
+            --disable-network \
+            --disable-debug \
+            --disable-doc \
+            --disable-ffplay \
+            --disable-ffprobe \
+            --extra-ldflags=-static \
+            --prefix=/ucrt64
+
+      - name: Build FFmpeg
+        shell: msys2 {0}
+        run: |
+          cd ffmpeg-src
+          make -j$(nproc)
+
+      - name: Install and package
+        shell: msys2 {0}
+        run: |
+          cd ffmpeg-src
+          make install
+          cp /ucrt64/bin/ffmpeg.exe ../ffmpeg.exe
+          strip -s ../ffmpeg.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ffmpeg_win64
+          path: ffmpeg.exe
+          if-no-files-found: error
+
+  packaging:
+    runs-on: windows-latest
+    needs: [build, ffmpeg]
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v7
+
+      - name: Get Adb
+        run: |
+          Copy-Item `
+          -Path "$env:ANDROID_HOME\platform-tools" `
+          -Destination adb_win64 `
+          -Recurse
+
+      - name: Collect binaries
+        run: |
+          cp adb_win64\adb.exe .
+          cp adb_win64\AdbWinApi.dll .
+          cp adb_win64\AdbWinUsbApi.dll .
+          cp ffmpeg_win64\ffmpeg.exe .
+          cp bilicong_win64_raw\bilicong_backend.exe .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: bilicong_win64_with_deps
+          path: |
+            adb.exe
+            AdbWinApi.dll
+            AdbWinUsbApi.dll
+            ffmpeg.exe
+            bilicong_backend.exe
+          if-no-files-found: error
