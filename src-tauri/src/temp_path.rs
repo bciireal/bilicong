@@ -3,6 +3,13 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 
+fn current_millis_ts() -> u128 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .expect("SystemTime before UNIX EPOCH!")
+        .as_millis()
+}
+
 pub struct TempDir {
     path: PathBuf,
 }
@@ -10,9 +17,10 @@ pub struct TempDir {
 impl TempDir {
     pub fn new(ident: &impl Debug) -> Result<Self> {
         let path = std::env::temp_dir().join(format!(
-            "{}-{}",
+            "{}-{}-{}",
             env!("CARGO_PKG_NAME"),
-            blake3::hash(format!("{ident:?}").as_bytes())
+            blake3::hash(format!("{ident:?}").as_bytes()),
+            current_millis_ts()
         ));
 
         std::fs::create_dir(&path)?;

@@ -53,6 +53,7 @@ const refreshEntryList = async () => {
 
   let pages_list = [];
   try {
+    footer_msg.value = "获取视频列表中...";
     pages_list = await getAllPages(device_sid);
   } catch (err) {
     warnDialog(`获取视频列表时出错: ${err}`);
@@ -62,6 +63,7 @@ const refreshEntryList = async () => {
   for (let i = 0; i < pages_list.length; i++) {
     const page_path = pages_list[i];
     try {
+      footer_msg.value=`解析路径 ${page_path} 中...`;
       options.unshift(await probeEntry(device_sid, page_path));
     } catch (err) {
       await warnDialog(`解析路径 ${page_path} 时出错: ${err}`);
