@@ -34,6 +34,7 @@ jobs:
         with:
           name: bilicong_win64_raw
           path: src-tauri\target\release\bilicong_backend.exe
+          if-no-files-found: error
 
   ffmpeg:
     runs-on: windows-latest
@@ -95,6 +96,7 @@ jobs:
         with:
           name: ffmpeg_win64
           path: ffmpeg.exe
+          if-no-files-found: error
 
   packaging:
     runs-on: windows-latest
@@ -105,15 +107,28 @@ jobs:
         uses: actions/download-artifact@v7
 
       - name: Get Adb
-        run: Copy-Item -Path "$env:ANDROID_HOME\platform-tools" -Destination adb_win64 -Recurse
+        run: |
+          Copy-Item `
+          -Path "$env:ANDROID_HOME\platform-tools" `
+          -Destination adb_win64 `
+          -Recurse
+
+      - name: Collect binaries
+        run: |
+          cp adb_win64\adb.exe .
+          cp adb_win64\AdbWinApi.dll .
+          cp adb_win64\AdbWinUsbApi.dll .
+          cp ffmpeg_win64\ffmpeg.exe .
+          cp bilicong_win64_raw\bilicong_backend.exe .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: bilicong_win64_with_deps
           path: |
-            adb_win64\adb.exe
-            adb_win64\AdbWinApi.dll
-            adb_win64\AdbWinUsbApi.dll
-            ffmpeg_win64\ffmpeg.exe
-            bilicong_win64_raw\bilicong_backend.exe
+            adb.exe
+            AdbWinApi.dll
+            AdbWinUsbApi.dll
+            ffmpeg.exe
+            bilicong_backend.exe
+          if-no-files-found: error
