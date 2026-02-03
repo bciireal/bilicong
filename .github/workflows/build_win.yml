@@ -1,0 +1,36 @@
+name: Build for Windows
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: latest
+
+      - name: Update Rust toolchain
+        run: rustup update
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Build
+        run: npx tauri build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: bilicong_x86_64_win32
+          path: src-tauri\target\release\bilicong_backend.exe

@@ -63,7 +63,7 @@ const refreshEntryList = async () => {
   for (let i = 0; i < pages_list.length; i++) {
     const page_path = pages_list[i];
     try {
-      footer_msg.value=`解析路径 ${page_path} 中...`;
+      footer_msg.value = `解析路径 ${page_path} 中...`;
       options.unshift(await probeEntry(device_sid, page_path));
     } catch (err) {
       await warnDialog(`解析路径 ${page_path} 时出错: ${err}`);
