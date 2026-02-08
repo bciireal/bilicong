@@ -1,10 +1,10 @@
-# BiliCong
+![BiliCong Banner Logo](src/assets/banner-logo.png?raw=true "BiliCong Banner Logo")
 
 B 站手机版缓存视频导出工具
 
 ## 使用方法
 
-- 打开手机开发者模式 -> USB 调试
+- 打开手机开发者模式 -> USB 调试 -> 使用数据线连接电脑
 - 到 [Github Release](https://github.com/bciireal/bilicong/releases/latest) 处下载压缩包
 - 全部解压
 - 运行 `bilicong_backend.exe`

@@ -63,6 +63,7 @@ jobs:
           cd ffmpeg-src
           ./configure \
             --arch=x86_64 \
+            --disable-unstable \
             --disable-encoders \
             --disable-decoders \
             --disable-filters \
