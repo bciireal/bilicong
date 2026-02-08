@@ -71,6 +71,7 @@ const refreshEntryList = async () => {
     }
   }
 
+  footer_msg.value = `获取视频列表完成`;
   task_locked.value = false;
 };
 

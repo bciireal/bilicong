@@ -1,4 +1,4 @@
-![BiliCong Banner Logo](src/assets/banner-logo.png?raw=true "BiliCong Banner Logo")
+![BiliCong Banner Logo](.github/assets/banner-logo.png?raw=true "BiliCong Banner Logo")
 
 B 站手机版缓存视频导出工具
 
