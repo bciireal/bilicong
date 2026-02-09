@@ -8,7 +8,7 @@ import MsgFooter from "../components/MsgFooter.vue";
 import IconWithMsg from "../components/IconWithMsg.vue";
 
 import connect_lost_icon from "../assets/connect-lost.svg";
-import loading_icon from "../assets/loading.svg";
+import scaning_icon from "../assets/scaning.svg";
 import fallback_img from "../assets/fallback.png";
 
 const router = useRouter();
@@ -120,7 +120,7 @@ onMounted(refreshEntryList);
   <main class="max-h-full pb-25 overflow-auto flex flex-col">
     <IconWithMsg
       v-if="task_locked && options.length === 0"
-      :icon="loading_icon"
+      :icon="scaning_icon"
       msg="扫描视频中"
     />
 

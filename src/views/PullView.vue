@@ -13,6 +13,7 @@ import {
 import MsgFooter from "../components/MsgFooter.vue";
 import IconWithMsg from "../components/IconWithMsg.vue";
 
+import loading_icon from "../assets/loading.svg";
 import download_icon from "../assets/download.svg";
 
 const router = useRouter();
@@ -92,7 +93,11 @@ onMounted(async () => {
   </header>
 
   <main class="max-h-full pb-25 overflow-auto flex flex-col">
-    <IconWithMsg :icon="download_icon" :msg="icon_msg" />
+    <IconWithMsg
+      :icon="task_locked ? loading_icon : download_icon"
+      :msg="icon_msg"
+      :spin-icon="task_locked"
+    />
 
     <div
       class="border border-zinc-500 mx-15 mt-15 p-5 rounded-md bg-zinc-50 shadow-md flex flex-col gap-6"
@@ -123,7 +128,7 @@ onMounted(async () => {
       </div>
 
       <button :disabled="task_locked || target_path === ''" @click="startSync">
-        It's MyGO!!!!!
+        导出
       </button>
     </div>
   </main>

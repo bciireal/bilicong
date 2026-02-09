@@ -8,7 +8,7 @@ import MsgFooter from "../components/MsgFooter.vue";
 import IconWithMsg from "../components/IconWithMsg.vue";
 
 import connect_lost_icon from "../assets/connect-lost.svg";
-import loading_icon from "../assets/loading.svg";
+import scaning_icon from "../assets/scaning.svg";
 
 const router = useRouter();
 
@@ -82,7 +82,7 @@ onMounted(refreshDevice);
   </header>
 
   <main class="max-h-full pb-25 overflow-auto flex flex-col items-center">
-    <IconWithMsg v-if="task_locked" :icon="loading_icon" msg="扫描设备中" />
+    <IconWithMsg v-if="task_locked" :icon="scaning_icon" msg="扫描设备中" />
 
     <label
       v-for="device_info in options"
