@@ -82,7 +82,12 @@ onMounted(refreshDevice);
   </header>
 
   <main class="max-h-full pb-25 overflow-auto flex flex-col items-center">
-    <IconWithMsg v-if="task_locked" :icon="scaning_icon" msg="扫描设备中" />
+    <IconWithMsg
+      v-if="task_locked"
+      :icon="scaning_icon"
+      msg="扫描设备中"
+      :spin-icon="true"
+    />
 
     <label
       v-for="device_info in options"

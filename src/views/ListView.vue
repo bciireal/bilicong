@@ -122,6 +122,7 @@ onMounted(refreshEntryList);
       v-if="task_locked && options.length === 0"
       :icon="scaning_icon"
       msg="扫描视频中"
+      :spin-icon="true"
     />
 
     <p
