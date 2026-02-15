@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_main:
     runs-on: windows-latest
 
     steps:
@@ -24,7 +24,7 @@ jobs:
         run: rustup update
 
       - name: Install npm dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npx tauri build
@@ -36,7 +36,7 @@ jobs:
           path: src-tauri\target\release\bilicong_backend.exe
           if-no-files-found: error
 
-  ffmpeg:
+  build_ffmpeg:
     runs-on: windows-latest
 
     steps:
@@ -55,7 +55,7 @@ jobs:
       - name: Download FFmpeg source
         shell: msys2 {0}
         run: |
-          git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git ffmpeg-src
+          git clone --depth 1 https://github.com/FFmpeg/FFmpeg.git ffmpeg-src
 
       - name: Configure FFmpeg
         shell: msys2 {0}
@@ -101,7 +101,7 @@ jobs:
 
   packaging:
     runs-on: windows-latest
-    needs: [build, ffmpeg]
+    needs: [build_main, build_ffmpeg]
 
     steps:
       - name: Download Build Artifact
