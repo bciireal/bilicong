@@ -19,9 +19,3 @@ defineProps({
     <p class="mx-10">{{ msg === "" ? "无信息" : msg }}</p>
   </div>
 </template>
-
-<style scoped>
-.animate-spin {
-  --animate-spin: spin 1s ease-in-out infinite;
-}
-</style>

@@ -9,3 +9,7 @@ button {
   @apply enabled:hover:bg-zinc-200 enabled:hover:border-blue-500 enabled:active:bg-zinc-300;
   @apply disabled:cursor-not-allowed disabled:brightness-80;
 }
+
+@theme {
+  --animate-spin: spin 1s ease-in-out infinite;
+}
