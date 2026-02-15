@@ -102,11 +102,11 @@ pub fn cat(sid: &str, path: &str) -> Result<String> {
     Ok(String::from_utf8(proc.stdout).map_err(|e| anyhow!(e))?)
 }
 
-pub fn pull(sid: &str, from: &str, to: impl AsRef<Path>) -> Result<()> {
+pub fn pull(sid: &str, from: &str, to: &Path) -> Result<()> {
     let proc = get_adb_command(Some(sid))
         .arg("pull")
         .arg(from)
-        .arg(to.as_ref())
+        .arg(to)
         .output()?;
 
     tauri_ensure!(

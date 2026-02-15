@@ -15,14 +15,9 @@ fn get_ffmpeg_command() -> Command {
     command
 }
 
-pub fn mix_media(
-    video_path: impl AsRef<Path>,
-    audio_path: Option<&impl AsRef<Path>>,
-    output_path: impl AsRef<Path>,
-) -> Result<()> {
+pub fn mix_media(video_path: &Path, audio_path: Option<&Path>, output_path: &Path) -> Result<()> {
     std::fs::create_dir_all(
         output_path
-            .as_ref()
             .parent()
             .ok_or_else(|| anyhow!("`output_path` should be a file"))?,
     )?;
@@ -34,10 +29,10 @@ pub fn mix_media(
 
     // Input
     proc.arg("-i");
-    proc.arg(video_path.as_ref());
+    proc.arg(video_path);
     if let Some(p) = audio_path {
         proc.arg("-i");
-        proc.arg(p.as_ref());
+        proc.arg(p);
     }
 
     // Stream Mapping
@@ -53,7 +48,7 @@ pub fn mix_media(
     proc.args(["-map_metadata", "-1"]);
 
     // Output
-    proc.arg(output_path.as_ref());
+    proc.arg(output_path);
 
     let stat = proc.status()?;
     ensure!(stat.success(), "FFmpeg stream mixing not success");

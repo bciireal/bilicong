@@ -113,9 +113,9 @@ pub fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> Result
     }
 
     mix::mix_media(
-        video_temp_path,
-        audio_temp_path.as_ref(),
-        target_path.join(entry_info.file_name()),
+        &video_temp_path,
+        audio_temp_path.as_deref(),
+        &target_path.join(entry_info.file_name()),
     )?;
 
     // Consume ownership to satisfy the function signature
