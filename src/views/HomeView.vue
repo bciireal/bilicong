@@ -93,10 +93,13 @@ onMounted(refreshDevice);
       v-for="device_info in options"
       :key="device_info.sid"
       class="flex round-box items-center gap-3 w-[80vw] mt-6"
-      :class="{
-        'border-blue-500 bg-blue-50': selected === device_info.sid,
-        'cursor-not-allowed brightness-80': !isDeviceAvaliable(device_info),
-      }"
+      :class="
+        isDeviceAvaliable(device_info)
+          ? selected === device_info.sid
+            ? 'border-blue-500 bg-blue-50 hover:bg-blue-100'
+            : 'hover:bg-zinc-200 hover:border-blue-500 active:bg-zinc-300'
+          : 'cursor-not-allowed brightness-80'
+      "
     >
       <input
         v-model="selected"
