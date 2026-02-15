@@ -15,7 +15,7 @@ pub struct TempDir {
 }
 
 impl TempDir {
-    pub fn new(ident: &impl Debug) -> Result<Self> {
+    pub fn new<T: Debug>(ident: &T) -> Result<Self> {
         let path = std::env::temp_dir().join(format!(
             "{}-{}-{}",
             env!("CARGO_PKG_NAME"),
