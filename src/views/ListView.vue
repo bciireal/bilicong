@@ -2,7 +2,12 @@
 import { ref, computed, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
-import { warnDialog, getAllPages, probeEntry } from "../services/api";
+import {
+  warnDialog,
+  getAllPages,
+  probeEntry,
+  infoDialog,
+} from "../services/api";
 
 import MsgFooter from "../components/MsgFooter.vue";
 import IconWithMsg from "../components/IconWithMsg.vue";
@@ -40,6 +45,17 @@ const pageForward = () => {
   router.push("/pull");
 };
 
+const probeEntryWithContex = async (page_path) => {
+  footer_msg.value = `解析路径 ${page_path} 中...`;
+  try {
+    options.unshift(await probeEntry(device_sid, page_path));
+  } catch (err) {
+    throw new Error(`Error when probe path ${page_path}: ${err}`, {
+      cause: err,
+    });
+  }
+};
+
 const refreshEntryList = async () => {
   if (task_locked.value) {
     warnDialog("请不要重复点击");
@@ -60,15 +76,27 @@ const refreshEntryList = async () => {
     footer_msg.value = `获取视频列表时出错: ${err}`;
   }
 
+  let tasks = [];
   for (let i = 0; i < pages_list.length; i++) {
     const page_path = pages_list[i];
-    try {
-      footer_msg.value = `解析路径 ${page_path} 中...`;
-      options.unshift(await probeEntry(device_sid, page_path));
-    } catch (err) {
-      await warnDialog(`解析路径 ${page_path} 时出错: ${err}`);
-      footer_msg.value = `解析路径 ${page_path} 时出错: ${err}`;
-    }
+    tasks.push(probeEntryWithContex(page_path));
+
+    // slowdown, give async runtime some time
+    // PERF: can be faster by reduce timeout
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  let tasks_status = await Promise.allSettled(tasks);
+  let rejected_tasks = tasks_status
+    .filter((s) => s.status === "rejected")
+    .map((s) => s.reason);
+
+  if (rejected_tasks.length !== 0) {
+    await warnDialog(
+      `共获取到 ${options.length} 条视频, 但有 ${rejected_tasks.length} 项出错:\n${rejected_tasks}`,
+    );
+  } else {
+    await infoDialog(`共获取到 ${options.length} 条视频`);
   }
 
   footer_msg.value = `获取视频列表完成`;

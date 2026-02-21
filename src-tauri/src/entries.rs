@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use tauri::Result;
+use tokio::task::spawn_blocking;
 
 use crate::adb;
 use crate::mix;
@@ -52,11 +53,10 @@ impl EntryInfo {
     }
 }
 
-#[tauri::command(async)]
-pub fn probe_entry(sid: &str, page_path: &str) -> Result<EntryInfo> {
-    let entry_data = adb::cat(sid, &format!("{page_path}/entry.json"))?;
-
-    let quality_paths = adb::ls(sid, page_path)?;
+#[tauri::command]
+pub async fn probe_entry(sid: &str, page_path: &str) -> Result<EntryInfo> {
+    let entry_data = adb::cat(sid, &format!("{page_path}/entry.json")).await?;
+    let quality_paths = adb::ls(sid, page_path).await?;
 
     let max_quality_path = quality_paths
         .iter()
@@ -94,8 +94,8 @@ pub fn probe_entry(sid: &str, page_path: &str) -> Result<EntryInfo> {
     Ok(entry_info)
 }
 
-#[tauri::command(async)]
-pub fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> Result<()> {
+#[tauri::command]
+pub async fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> Result<()> {
     let target_path = PathBuf::from(target_path);
     let temp_path = TempDir::new(&entry_info)?;
 
@@ -105,21 +105,21 @@ pub fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> Result
         .as_ref()
         .map(|_| temp_path.as_path().join("audio.m4s"));
 
-    adb::pull(sid, &entry_info.video_path, &video_temp_path)?;
+    adb::pull(sid, &entry_info.video_path, &video_temp_path).await?;
     if let Some(p) = &entry_info.audio_path
         && let Some(a) = &audio_temp_path
     {
-        adb::pull(sid, p, a)?;
+        adb::pull(sid, p, a).await?;
     }
 
-    mix::mix_media(
-        &video_temp_path,
-        audio_temp_path.as_deref(),
-        &target_path.join(entry_info.file_name()),
-    )?;
-
-    // Consume ownership to satisfy the function signature
-    drop(entry_info);
+    spawn_blocking(move || {
+        mix::mix_media(
+            &video_temp_path,
+            audio_temp_path.as_deref(),
+            &target_path.join(entry_info.file_name()),
+        )
+    })
+    .await??;
 
     // Ensure `temp_path` are dropped after transcoding is complete
     drop(temp_path);
