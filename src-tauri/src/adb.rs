@@ -6,10 +6,17 @@ use std::os::windows::process::CommandExt;
 use anyhow::anyhow;
 use serde::Serialize;
 use tauri::Result;
+use tokio::{
+    sync::{Semaphore, SemaphorePermit},
+    task::spawn_blocking,
+};
 
 use crate::{tauri_bail, tauri_ensure};
 
-fn get_adb_command(sid: Option<&str>) -> Command {
+// TODO: is value 6 suitable?
+static ADB_CONCURRENT_LOCK: Semaphore = Semaphore::const_new(6);
+
+async fn get_adb_command(sid: Option<&str>) -> (Command, SemaphorePermit<'static>) {
     let mut command = Command::new("adb");
 
     if let Some(s) = sid {
@@ -20,7 +27,12 @@ fn get_adb_command(sid: Option<&str>) -> Command {
     #[cfg(target_os = "windows")]
     command.creation_flags(0x0800_0000);
 
-    command
+    let permit = ADB_CONCURRENT_LOCK
+        .acquire()
+        .await
+        .expect("closed semaphore");
+
+    (command, permit)
 }
 
 #[derive(Debug, Serialize)]
@@ -29,9 +41,11 @@ pub struct AdbDeviceInfo {
     label: String,
 }
 
-#[tauri::command(async)]
-pub fn get_devices() -> Result<Vec<AdbDeviceInfo>> {
-    let proc = get_adb_command(None).arg("devices").output()?;
+#[tauri::command]
+pub async fn get_devices() -> Result<Vec<AdbDeviceInfo>> {
+    let (mut command, permit) = get_adb_command(None).await;
+    let proc = spawn_blocking(move || command.arg("devices").output()).await??;
+    drop(permit);
 
     tauri_ensure!(
         proc.status.success(),
@@ -51,12 +65,11 @@ pub fn get_devices() -> Result<Vec<AdbDeviceInfo>> {
         .collect())
 }
 
-pub fn ls(sid: &str, path: &str) -> Result<Vec<String>> {
-    let proc = get_adb_command(Some(sid))
-        .arg("shell")
-        .arg("ls")
-        .arg(path)
-        .output()?;
+pub async fn ls(sid: &str, path: &str) -> Result<Vec<String>> {
+    let (mut command, permit) = get_adb_command(Some(sid)).await;
+    let p = path.to_string();
+    let proc = spawn_blocking(move || command.arg("shell").arg("ls").arg(&p).output()).await??;
+    drop(permit);
 
     tauri_ensure!(
         proc.status.success(),
@@ -71,27 +84,32 @@ pub fn ls(sid: &str, path: &str) -> Result<Vec<String>> {
         .collect())
 }
 
-#[tauri::command(async)]
-pub fn get_all_pages(sid: &str) -> Result<Vec<String>> {
+#[tauri::command]
+pub async fn get_all_pages(sid: &str) -> Result<Vec<String>> {
     let root_dir = "/sdcard/Android/data/tv.danmaku.bili/download";
 
-    let video_dirs = ls(sid, root_dir)?;
+    let video_dirs = ls(sid, root_dir).await?;
+
+    let mut tasks = vec![];
+    for p in video_dirs {
+        let s = sid.to_string();
+        tasks.push(tokio::spawn(async move { ls(&s, &p).await }));
+    }
 
     let mut page_dirs = vec![];
 
-    for video_dir in video_dirs {
-        page_dirs.extend(ls(sid, &video_dir)?);
+    for t in tasks {
+        page_dirs.extend(t.await??);
     }
 
     Ok(page_dirs)
 }
 
-pub fn cat(sid: &str, path: &str) -> Result<String> {
-    let proc = get_adb_command(Some(sid))
-        .arg("shell")
-        .arg("cat")
-        .arg(path)
-        .output()?;
+pub async fn cat(sid: &str, path: &str) -> Result<String> {
+    let (mut command, permit) = get_adb_command(Some(sid)).await;
+    let p = path.to_string();
+    let proc = spawn_blocking(move || command.arg("shell").arg("cat").arg(&p).output()).await??;
+    drop(permit);
 
     tauri_ensure!(
         proc.status.success(),
@@ -102,12 +120,11 @@ pub fn cat(sid: &str, path: &str) -> Result<String> {
     Ok(String::from_utf8(proc.stdout).map_err(|e| anyhow!(e))?)
 }
 
-pub fn pull(sid: &str, from: &str, to: &Path) -> Result<()> {
-    let proc = get_adb_command(Some(sid))
-        .arg("pull")
-        .arg(from)
-        .arg(to)
-        .output()?;
+pub async fn pull(sid: &str, from: &str, to: &Path) -> Result<()> {
+    let (mut command, permit) = get_adb_command(Some(sid)).await;
+    let (f, t) = (from.to_string(), to.to_path_buf());
+    let proc = spawn_blocking(move || command.arg("pull").arg(&f).arg(&t).output()).await??;
+    drop(permit);
 
     tauri_ensure!(
         proc.status.success(),
