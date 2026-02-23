@@ -68,7 +68,8 @@ pub async fn get_devices() -> Result<Vec<AdbDeviceInfo>> {
 pub async fn ls(sid: &str, path: &str) -> Result<Vec<String>> {
     let (mut command, permit) = get_adb_command(Some(sid)).await;
     let p = path.to_string();
-    let proc = spawn_blocking(move || command.arg("shell").arg("ls").arg(&p).output()).await??;
+    let proc = spawn_blocking(move || command.arg("shell").arg("ls").arg("-tr").arg(&p).output())
+        .await??;
     drop(permit);
 
     tauri_ensure!(
