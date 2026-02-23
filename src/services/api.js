@@ -30,10 +30,14 @@ export async function openDir(dir) {
   openPath(dir);
 }
 
+function addLineBreaks(str) {
+  return str.toString().replace(/(.{40})/g, "$1\n");
+}
+
 export async function warnDialog(msg) {
-  return await message(msg, { kind: "warning" });
+  return await message(addLineBreaks(msg), { kind: "warning" });
 }
 
 export async function infoDialog(msg) {
-  return await message(msg, { kind: "info" });
+  return await message(addLineBreaks(msg), { kind: "info" });
 }
