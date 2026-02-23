@@ -31,7 +31,7 @@ const progress_style = computed(() => {
     <div class="progress-outer">
       <div class="progress-inner" :style="progress_style"></div>
     </div>
-    <div>{{ progress_floor }} %</div>
+    <div>共 {{ total }}, 已完成 {{ value }}, 占 {{ progress_floor }} %</div>
   </div>
 </template>
 
@@ -39,7 +39,7 @@ const progress_style = computed(() => {
 @reference "tailwindcss";
 
 @utility progress-shape {
-  @apply w-[70vw] h-3 shadow-md rounded-full transition-[width];
+  @apply w-[50vw] h-3 shadow-md rounded-full transition-[width];
 }
 
 .progress-outer {
@@ -47,6 +47,6 @@ const progress_style = computed(() => {
 }
 
 .progress-inner {
-  @apply progress-shape bg-blue-400;
+  @apply progress-shape bg-cyan-500;
 }
 </style>

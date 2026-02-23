@@ -105,12 +105,12 @@ pub async fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> 
         .as_ref()
         .map(|_| temp_path.as_path().join("audio.m4s"));
 
-    adb::pull(sid, &entry_info.video_path, &video_temp_path).await?;
     if let Some(p) = &entry_info.audio_path
         && let Some(a) = &audio_temp_path
     {
         adb::pull(sid, p, a).await?;
     }
+    adb::pull(sid, &entry_info.video_path, &video_temp_path).await?;
 
     spawn_blocking(move || {
         mix::mix_media(

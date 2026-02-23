@@ -82,8 +82,7 @@ const refreshEntryList = async () => {
     tasks.push(probeEntryWithContex(page_path));
 
     // slowdown, give async runtime some time
-    // PERF: can be faster by reduce timeout
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => requestIdleCallback(resolve));
   }
 
   let tasks_status = await Promise.allSettled(tasks);

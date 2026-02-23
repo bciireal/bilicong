@@ -12,6 +12,7 @@ import {
 
 import MsgFooter from "../components/MsgFooter.vue";
 import IconWithMsg from "../components/IconWithMsg.vue";
+import ProgressBar from "../components/ProgressBar.vue";
 
 import loading_icon from "../assets/loading.svg";
 import download_icon from "../assets/download.svg";
@@ -24,6 +25,8 @@ const target_path = ref("");
 
 const footer_msg = ref("");
 const icon_msg = ref("");
+
+const current_pulled_index = ref(0);
 
 const device_sid = sessionStorage.getItem("device_adb_sid");
 const selected = JSON.parse(sessionStorage.getItem("entry_info_list"));
@@ -43,28 +46,52 @@ const openTargetDir = () => {
   openDir(target_path.value);
 };
 
+const pullMediaWithContex = async (entry_info) => {
+  try {
+    await pullMedia(device_sid, target_path.value, entry_info);
+  } catch (err) {
+    throw new Error(`Error pulling ${JSON.stringify(entry_info)}: ${err}`, {
+      cause: err,
+    });
+  }
+
+  icon_msg.value = `导出中, 当前已完成: ${entry_info.title} P${entry_info.page}`;
+  current_pulled_index.value += 1;
+};
+
 const startSync = async () => {
   if (task_locked.value) {
     warnDialog("请不要重复点击");
     return;
   }
 
+  icon_msg.value = "导出中";
   task_locked.value = true;
+  current_pulled_index.value = 0;
 
+  let tasks = [];
   for (let i = 0; i < selected.length; i++) {
     const entry_info = selected[i];
-    icon_msg.value = `导出中: ${i + 1}/${selected.length} ${entry_info.title}`;
+    tasks.push(pullMediaWithContex(entry_info));
 
-    try {
-      await pullMedia(device_sid, target_path.value, entry_info);
-    } catch (err) {
-      await warnDialog(`导出视频 ${entry_info.title} 时出错: ${err}`);
-      footer_msg.value = `导出视频 ${entry_info.title} 时出错: ${err}`;
-    }
+    // slowdown, give async runtime some time
+    await new Promise((resolve) => requestIdleCallback(resolve));
+  }
+
+  let tasks_status = await Promise.allSettled(tasks);
+  let rejected_tasks = tasks_status
+    .filter((s) => s.status === "rejected")
+    .map((s) => s.reason);
+
+  if (rejected_tasks.length !== 0) {
+    await warnDialog(
+      `导出成功 ${tasks_status.length - rejected_tasks.length} 条视频, 导出失败 ${rejected_tasks.length} 条视频:\n${rejected_tasks}`,
+    );
+  } else {
+    await infoDialog(`共导出成功 ${selected.length} 条视频`);
   }
 
   icon_msg.value = "导出完成";
-  await infoDialog("导出完成");
   task_locked.value = false;
 };
 
@@ -92,15 +119,19 @@ onMounted(async () => {
     <div class="flex-1 text-right"></div>
   </header>
 
-  <main class="max-h-full pb-25 overflow-auto flex flex-col">
+  <main
+    class="max-h-full pb-25 overflow-auto flex flex-col items-center gap-10"
+  >
     <IconWithMsg
       :icon="task_locked ? loading_icon : download_icon"
       :msg="icon_msg"
       :spin-icon="task_locked"
     />
 
+    <ProgressBar :total="selected.length" :value="current_pulled_index" />
+
     <div
-      class="border border-zinc-500 mx-15 mt-15 p-5 rounded-md bg-zinc-50 shadow-md flex flex-col gap-6"
+      class="border border-zinc-500 p-5 rounded-md bg-zinc-50 shadow-md flex flex-col gap-6 w-[80vw]"
     >
       <div class="flex justify-between">
         <div class="flex flex-col gap-1">
