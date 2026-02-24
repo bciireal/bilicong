@@ -9,7 +9,6 @@ import {
   infoDialog,
 } from "../services/api";
 
-import MsgFooter from "../components/MsgFooter.vue";
 import IconWithMsg from "../components/IconWithMsg.vue";
 
 import connect_lost_icon from "../assets/connect-lost.svg";
@@ -22,8 +21,6 @@ const task_locked = ref(false);
 
 const selected = ref([]);
 const options = reactive([]);
-
-const footer_msg = ref("");
 
 const allow_forward = computed(() => {
   return !task_locked.value && selected.value.length !== 0;
@@ -45,8 +42,7 @@ const pageForward = () => {
   router.push("/pull");
 };
 
-const probeEntryWithContex = async (page_path) => {
-  footer_msg.value = `解析路径 ${page_path} 中...`;
+const probeEntryWithContext = async (page_path) => {
   try {
     options.unshift(await probeEntry(device_sid, page_path));
   } catch (err) {
@@ -65,23 +61,21 @@ const refreshEntryList = async () => {
   task_locked.value = true;
   options.splice(0);
   selected.value.splice(0);
-  footer_msg.value = "";
 
   let pages_list = [];
   try {
-    footer_msg.value = "获取视频列表中...";
     pages_list = await getAllPages(device_sid);
   } catch (err) {
     warnDialog(`获取视频列表时出错: ${err}`);
-    footer_msg.value = `获取视频列表时出错: ${err}`;
   }
 
   let tasks = [];
   for (let i = 0; i < pages_list.length; i++) {
     const page_path = pages_list[i];
-    tasks.push(probeEntryWithContex(page_path));
+    tasks.push(probeEntryWithContext(page_path));
 
     // slowdown, give async runtime some time
+    // based on real world testing, this is indeed useful
     await new Promise((resolve) => requestIdleCallback(resolve));
   }
 
@@ -98,7 +92,6 @@ const refreshEntryList = async () => {
     await infoDialog(`共获取到 ${options.length} 条视频`);
   }
 
-  footer_msg.value = `获取视频列表完成`;
   task_locked.value = false;
 };
 
@@ -144,7 +137,7 @@ onMounted(refreshEntryList);
     <button :disabled="task_locked" @click="optionChooseNone">全不选</button>
   </div>
 
-  <main class="max-h-full pb-25 overflow-auto flex flex-col">
+  <main class="max-h-full pb-20 overflow-auto flex flex-col">
     <IconWithMsg
       v-if="task_locked && options.length === 0"
       :icon="scaning_icon"
@@ -197,6 +190,4 @@ onMounted(refreshEntryList);
       msg="暂无视频"
     />
   </main>
-
-  <MsgFooter :msg="footer_msg" />
 </template>

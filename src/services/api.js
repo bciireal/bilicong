@@ -31,7 +31,7 @@ export async function openDir(dir) {
 }
 
 function addLineBreaks(str) {
-  return str.toString().replace(/(.{40})/g, "$1\n");
+  return str.toString().replace(/(.{60})/g, "$1\n");
 }
 
 export async function warnDialog(msg) {

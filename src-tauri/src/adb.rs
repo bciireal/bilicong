@@ -67,6 +67,9 @@ pub async fn get_devices() -> Result<Vec<AdbDeviceInfo>> {
 
 pub async fn ls(sid: &str, path: &str) -> Result<Vec<String>> {
     let (mut command, permit) = get_adb_command(Some(sid)).await;
+
+    // Use `ls -tr` to sort entries by modification time in reverse order (newest first),
+    // maintaining consistency with the app's saved page sequence.
     let p = path.to_string();
     let proc = spawn_blocking(move || command.arg("shell").arg("ls").arg("-tr").arg(&p).output())
         .await??;

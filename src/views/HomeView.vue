@@ -4,7 +4,6 @@ import { useRouter } from "vue-router";
 
 import { warnDialog, getDevices } from "../services/api";
 
-import MsgFooter from "../components/MsgFooter.vue";
 import IconWithMsg from "../components/IconWithMsg.vue";
 
 import connect_lost_icon from "../assets/connect-lost.svg";
@@ -16,8 +15,6 @@ const task_locked = ref(false);
 
 const selected = ref("");
 const options = reactive([]);
-
-const footer_msg = ref("");
 
 const allow_forward = computed(() => {
   return !task_locked.value && selected.value !== "";
@@ -32,14 +29,12 @@ const refreshDevice = async () => {
   task_locked.value = true;
   options.splice(0);
   selected.value = "";
-  footer_msg.value = "";
 
   let device_list = [];
   try {
     device_list = await getDevices();
   } catch (err) {
     warnDialog(`获取设备列表时出错: ${err}`);
-    footer_msg.value = `获取设备列表时出错: ${err}`;
   }
 
   device_list.forEach((d) => {
@@ -81,7 +76,7 @@ onMounted(refreshDevice);
     </div>
   </header>
 
-  <main class="max-h-full pb-25 overflow-auto flex flex-col items-center">
+  <main class="max-h-full pb-20 overflow-auto flex flex-col items-center">
     <IconWithMsg
       v-if="task_locked"
       :icon="scaning_icon"
@@ -123,6 +118,4 @@ onMounted(refreshDevice);
       点我刷新
     </button>
   </main>
-
-  <MsgFooter :msg="footer_msg"></MsgFooter>
 </template>

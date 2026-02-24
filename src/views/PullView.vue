@@ -10,7 +10,6 @@ import {
   infoDialog,
 } from "../services/api";
 
-import MsgFooter from "../components/MsgFooter.vue";
 import IconWithMsg from "../components/IconWithMsg.vue";
 import ProgressBar from "../components/ProgressBar.vue";
 
@@ -23,7 +22,6 @@ const task_locked = ref(false);
 
 const target_path = ref("");
 
-const footer_msg = ref("");
 const icon_msg = ref("");
 
 const current_pulled_index = ref(0);
@@ -46,7 +44,7 @@ const openTargetDir = () => {
   openDir(target_path.value);
 };
 
-const pullMediaWithContex = async (entry_info) => {
+const pullMediaWithContext = async (entry_info) => {
   try {
     await pullMedia(device_sid, target_path.value, entry_info);
   } catch (err) {
@@ -72,10 +70,7 @@ const startSync = async () => {
   let tasks = [];
   for (let i = 0; i < selected.length; i++) {
     const entry_info = selected[i];
-    tasks.push(pullMediaWithContex(entry_info));
-
-    // slowdown, give async runtime some time
-    await new Promise((resolve) => requestIdleCallback(resolve));
+    tasks.push(pullMediaWithContext(entry_info));
   }
 
   let tasks_status = await Promise.allSettled(tasks);
@@ -120,7 +115,7 @@ onMounted(async () => {
   </header>
 
   <main
-    class="max-h-full pb-25 overflow-auto flex flex-col items-center gap-10"
+    class="max-h-full pb-20 overflow-auto flex flex-col items-center gap-10"
   >
     <IconWithMsg
       :icon="task_locked ? loading_icon : download_icon"
@@ -163,6 +158,4 @@ onMounted(async () => {
       </button>
     </div>
   </main>
-
-  <MsgFooter :msg="footer_msg" />
 </template>

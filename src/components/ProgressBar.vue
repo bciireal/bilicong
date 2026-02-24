@@ -7,6 +7,10 @@ const props = defineProps({
 });
 
 const progress_raw = computed(() => {
+  if (props.total === 0) {
+    return 0;
+  }
+
   let v = props.value / props.total;
   if (v <= 0) {
     v = 0;
@@ -36,7 +40,7 @@ const progress_style = computed(() => {
 </template>
 
 <style scoped>
-@reference "tailwindcss";
+@reference "../style.css";
 
 @utility progress-shape {
   @apply w-[50vw] h-3 shadow-md rounded-full transition-[width];
