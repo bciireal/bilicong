@@ -34,7 +34,7 @@ const refreshDevice = async () => {
   try {
     device_list = await getDevices();
   } catch (err) {
-    warnDialog(`获取设备列表时出错: ${err}`);
+    await warnDialog(`获取设备列表时出错: ${err}`);
   }
 
   device_list.forEach((d) => {
@@ -45,7 +45,7 @@ const refreshDevice = async () => {
 };
 
 const isDeviceAvaliable = (device_info) => {
-  return !["offline", "unauthorized"].includes(device_info.label);
+  return !["offline", "unauthorized", "bootloader"].includes(device_info.label);
 };
 
 const pageForward = () => {

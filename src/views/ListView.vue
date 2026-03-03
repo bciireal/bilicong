@@ -66,7 +66,7 @@ const refreshEntryList = async () => {
   try {
     pages_list = await getAllPages(device_sid);
   } catch (err) {
-    warnDialog(`获取视频列表时出错: ${err}`);
+    await warnDialog(`获取视频列表时出错: ${err}`);
   }
 
   let tasks = [];
