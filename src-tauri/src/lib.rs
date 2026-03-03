@@ -5,8 +5,6 @@ mod entries;
 mod mix;
 mod temp_path;
 
-mod tauri_anyhow_wrap;
-
 /// Run tauri ui
 /// # Panics
 /// Panics if tauri app faild to run
