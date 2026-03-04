@@ -8,8 +8,8 @@ use anyhow::{Result, ensure};
 use tokio::sync::Semaphore;
 use tokio::task::spawn_blocking;
 
-// TODO: is value 6 suitable?
-static ADB_CONCURRENT_LOCK: Semaphore = Semaphore::const_new(6);
+// TODO: is value 4 suitable?
+static ADB_CONCURRENT_LOCK: Semaphore = Semaphore::const_new(4);
 
 pub struct AdbCommand {
     command: Command,

@@ -63,7 +63,7 @@ const startSync = async () => {
     return;
   }
 
-  icon_msg.value = "导出中";
+  icon_msg.value = "导出中, 请坐和放宽......好东西就要来了!";
   task_locked.value = true;
   current_pulled_index.value = 0;
 
