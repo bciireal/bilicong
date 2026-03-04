@@ -39,6 +39,7 @@ const pageForward = () => {
   }
 
   sessionStorage.setItem("entry_info_list", JSON.stringify(selected.value));
+  sessionStorage.setItem("entry_info_cache", JSON.stringify(options));
   router.push("/pull");
 };
 
@@ -111,7 +112,16 @@ const optionChooseNone = () => {
   selected.value.splice(0);
 };
 
-onMounted(refreshEntryList);
+onMounted(() => {
+  let cache = sessionStorage.getItem("entry_info_cache");
+  if (cache !== null) {
+    JSON.parse(cache).forEach((e) => {
+      options.push(e);
+    });
+  } else {
+    refreshEntryList();
+  }
+});
 </script>
 
 <template>

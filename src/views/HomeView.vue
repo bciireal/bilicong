@@ -55,6 +55,7 @@ const pageForward = () => {
   }
 
   sessionStorage.setItem("device_adb_sid", selected.value);
+  sessionStorage.removeItem("entry_info_cache");
   router.push("/list");
 };
 
