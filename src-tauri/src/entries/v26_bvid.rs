@@ -16,7 +16,7 @@ struct Base {
 #[derive(Debug, Deserialize)]
 struct PageData {
     page: u32,
-    part: String,
+    part: Option<String>,
 }
 
 pub fn parse(quality_path: &str, entry_data: &str) -> Result<EntryInfo> {
@@ -24,10 +24,16 @@ pub fn parse(quality_path: &str, entry_data: &str) -> Result<EntryInfo> {
 
     ensure!(!data.bvid.is_empty(), "not bvid entry");
 
+    let page_name = if let Some(p) = data.page_data.part {
+        p
+    } else {
+        data.title.clone()
+    };
+
     Ok(EntryInfo {
         title: data.title,
         page: data.page_data.page,
-        page_name: data.page_data.part,
+        page_name,
         video_id: data.bvid,
         uploader: data.owner_name,
         cover_url: data.cover,
