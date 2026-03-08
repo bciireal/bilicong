@@ -12,7 +12,6 @@ use crate::temp_path::TempDir;
 mod fallback;
 mod v26_avid;
 mod v26_bvid;
-mod v26_ep_avid;
 mod v26_ep_bvid;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -82,8 +81,6 @@ pub async fn probe_entry(sid: &str, page_path: &str) -> Result<EntryInfo> {
     } else if let Ok(entry_info) = v26_avid::parse(&quality_path, &entry_data) {
         entry_info
     } else if let Ok(entry_info) = v26_ep_bvid::parse(&quality_path, &entry_data) {
-        entry_info
-    } else if let Ok(entry_info) = v26_ep_avid::parse(&quality_path, &entry_data) {
         entry_info
     } else {
         fallback::fallback_parser(&quality_path, &entry_data)
