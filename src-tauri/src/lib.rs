@@ -2,8 +2,7 @@
 
 mod adb;
 mod entries;
-mod mix;
-mod temp_path;
+mod mix_media;
 
 /// Run tauri ui
 /// # Panics

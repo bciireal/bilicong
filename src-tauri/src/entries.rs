@@ -6,8 +6,7 @@ use tauri::Result;
 use tokio::task::spawn_blocking;
 
 use crate::adb;
-use crate::mix;
-use crate::temp_path::TempDir;
+use crate::mix_media;
 
 mod fallback;
 mod v1_episode;
@@ -75,13 +74,18 @@ pub async fn probe_entry(sid: &str, page_path: &str) -> Result<EntryInfo> {
     // avoid mistyping, haha
     drop(quality_paths);
 
-    let mut entry_info = if let Ok(entry_info) = v1_video::parse(&quality_path, &entry_data) {
-        entry_info
-    } else if let Ok(entry_info) = v1_episode::parse(&quality_path, &entry_data) {
-        entry_info
-    } else {
-        fallback::fallback_parser(&quality_path, &entry_data)
-    };
+    let parsers = [v1_video::parse, v1_episode::parse];
+
+    let mut entry_info = None;
+    for parser in parsers {
+        if let Ok(e) = parser(&quality_path, &entry_data) {
+            entry_info = Some(e);
+            break;
+        }
+    }
+
+    let mut entry_info =
+        entry_info.unwrap_or_else(|| fallback::fallback_parser(&quality_path, &entry_data));
 
     entry_info.cover_url = entry_info.cover_url.replace("http://", "https://");
 
@@ -91,13 +95,15 @@ pub async fn probe_entry(sid: &str, page_path: &str) -> Result<EntryInfo> {
 #[tauri::command]
 pub async fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> Result<()> {
     let target_path = PathBuf::from(target_path);
-    let temp_path = TempDir::new(&entry_info)?;
+    let temp_path = tempfile::Builder::new()
+        .prefix(env!("CARGO_PKG_NAME"))
+        .tempdir()?;
 
-    let video_temp_path = temp_path.as_path().join("video.m4s");
+    let video_temp_path = temp_path.path().join("video.m4s");
     let audio_temp_path = entry_info
         .audio_path
         .as_ref()
-        .map(|_| temp_path.as_path().join("audio.m4s"));
+        .map(|_| temp_path.path().join("audio.m4s"));
 
     if let Some(p) = &entry_info.audio_path
         && let Some(a) = &audio_temp_path
@@ -107,7 +113,7 @@ pub async fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> 
     adb::pull(sid, &entry_info.video_path, &video_temp_path).await?;
 
     spawn_blocking(move || {
-        mix::mix_media(
+        mix_media::mix_media(
             &video_temp_path,
             audio_temp_path.as_deref(),
             &target_path.join(entry_info.file_name()),
