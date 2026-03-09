@@ -10,9 +10,8 @@ use crate::mix;
 use crate::temp_path::TempDir;
 
 mod fallback;
-mod v26_avid;
-mod v26_bvid;
-mod v26_ep_bvid;
+mod v1_episode;
+mod v1_video;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct EntryInfo {
@@ -76,11 +75,9 @@ pub async fn probe_entry(sid: &str, page_path: &str) -> Result<EntryInfo> {
     // avoid mistyping, haha
     drop(quality_paths);
 
-    let mut entry_info = if let Ok(entry_info) = v26_bvid::parse(&quality_path, &entry_data) {
+    let mut entry_info = if let Ok(entry_info) = v1_video::parse(&quality_path, &entry_data) {
         entry_info
-    } else if let Ok(entry_info) = v26_avid::parse(&quality_path, &entry_data) {
-        entry_info
-    } else if let Ok(entry_info) = v26_ep_bvid::parse(&quality_path, &entry_data) {
+    } else if let Ok(entry_info) = v1_episode::parse(&quality_path, &entry_data) {
         entry_info
     } else {
         fallback::fallback_parser(&quality_path, &entry_data)

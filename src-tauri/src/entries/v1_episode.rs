@@ -1,8 +1,9 @@
-use anyhow::{Result, ensure};
+use anyhow::Result;
 use serde::Deserialize;
 
 use super::EntryInfo;
 
+// Entry format for episode at 2026-03-09
 // {
 //   "media_type": 2,
 //   "has_dash_audio": true,
@@ -57,6 +58,7 @@ struct Base {
 
 #[derive(Debug, Deserialize)]
 struct Ep {
+    av_id: u64,
     bvid: String,
     page: u32,
     index_title: String,
@@ -65,7 +67,11 @@ struct Ep {
 pub fn parse(quality_path: &str, entry_data: &str) -> Result<EntryInfo> {
     let data: Base = serde_json::from_str(entry_data)?;
 
-    ensure!(!data.ep.bvid.is_empty(), "not bvid entry");
+    let video_id = if data.ep.bvid.is_empty() {
+        format!("av{}", data.ep.av_id)
+    } else {
+        data.ep.bvid
+    };
 
     let uploader = data.title.clone();
 
@@ -73,7 +79,7 @@ pub fn parse(quality_path: &str, entry_data: &str) -> Result<EntryInfo> {
         title: data.title,
         page: data.ep.page,
         page_name: data.ep.index_title,
-        video_id: data.ep.bvid,
+        video_id,
         uploader,
         cover_url: data.cover,
         video_path: format!("{quality_path}/video.m4s"),
