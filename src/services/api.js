@@ -41,3 +41,7 @@ export async function warnDialog(msg) {
 export async function infoDialog(msg) {
   return await message(addLineBreaks(msg), { kind: "info" });
 }
+
+export async function getProjectVersion() {
+  return await invoke("get_project_version");
+}
