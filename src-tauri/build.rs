@@ -9,7 +9,7 @@ fn get_git_commit_short_id() -> Result<String> {
 
     ensure!(
         proc_output.status.success(),
-        "Faild to get git describe: {}",
+        "Faild to invoke git log: {}",
         String::from_utf8_lossy(&proc_output.stderr)
     );
 
@@ -18,7 +18,7 @@ fn get_git_commit_short_id() -> Result<String> {
 
 fn main() {
     let commit_id = get_git_commit_short_id().unwrap_or_else(|e| {
-        println!("cargo::warning=Faild to get git log: {e}");
+        println!("cargo::warning=Faild to get commit id: {e}");
         "UNKNOWN".into()
     });
     println!(
