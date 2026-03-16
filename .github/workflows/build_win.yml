@@ -26,6 +26,8 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      - run: git log -1
+
       - name: Build
         run: npx tauri build
 
