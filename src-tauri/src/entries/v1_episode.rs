@@ -53,7 +53,6 @@ struct Base {
     title: String,
     ep: Ep,
     cover: String,
-    has_dash_audio: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -82,11 +81,6 @@ pub fn parse(quality_path: &str, entry_data: &str) -> Result<EntryInfo> {
         video_id,
         uploader,
         cover_url: data.cover,
-        video_path: format!("{quality_path}/video.m4s"),
-        audio_path: if data.has_dash_audio {
-            Some(format!("{quality_path}/audio.m4s"))
-        } else {
-            None
-        },
+        media_path: quality_path.to_string(),
     })
 }

@@ -4,6 +4,7 @@ use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use tauri::Result;
 use tokio::task::spawn_blocking;
+use tracing::warn;
 
 use crate::adb;
 use crate::mix_media;
@@ -20,8 +21,7 @@ pub struct EntryInfo {
     video_id: String,
     uploader: String,
     cover_url: String,
-    video_path: String,
-    audio_path: Option<String>,
+    media_path: String,
 }
 
 impl EntryInfo {
@@ -100,22 +100,39 @@ pub async fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> 
         .tempdir()?;
 
     let video_temp_path = temp_path.path().join("video.m4s");
-    let audio_temp_path = entry_info
-        .audio_path
-        .as_ref()
-        .map(|_| temp_path.path().join("audio.m4s"));
+    let audio_temp_path = temp_path.path().join("audio.m4s");
 
-    if let Some(p) = &entry_info.audio_path
-        && let Some(a) = &audio_temp_path
+    let has_audio = if let Err(e) = adb::pull(
+        sid,
+        &format!("{}/audio.m4s", entry_info.media_path),
+        &audio_temp_path,
+    )
+    .await
     {
-        adb::pull(sid, p, a).await?;
-    }
-    adb::pull(sid, &entry_info.video_path, &video_temp_path).await?;
+        warn!(
+            "No audio file found or error happend when pulling {:?}: {:?}",
+            entry_info, e
+        );
+        false
+    } else {
+        true
+    };
+
+    adb::pull(
+        sid,
+        &format!("{}/video.m4s", entry_info.media_path),
+        &video_temp_path,
+    )
+    .await?;
 
     spawn_blocking(move || {
         mix_media::mix_media(
             &video_temp_path,
-            audio_temp_path.as_deref(),
+            if has_audio {
+                Some(&audio_temp_path)
+            } else {
+                None
+            },
             &target_path.join(entry_info.file_name()),
         )
     })

@@ -10,7 +10,6 @@ pub fn fallback_parser(quality_path: &str, entry_data: &str) -> EntryInfo {
         video_id: "--".into(),
         uploader: "--".into(),
         cover_url: "data:,".into(),
-        video_path: format!("{quality_path}/video.m4s"),
-        audio_path: Some(format!("{quality_path}/audio.m4s")),
+        media_path: quality_path.to_string(),
     }
 }
