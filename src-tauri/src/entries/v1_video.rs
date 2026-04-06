@@ -6,7 +6,9 @@ use super::EntryInfo;
 // Entry format for normal video at 2026-03-09
 // {
 //   "media_type": 2,
-//   "has_dash_audio": true,
+//   "has_dash_audio": true, <-- maybe no audio stream,
+//                               reference to commit
+//                               522dbe2a26ca24c54a507f8f64c0d4611354c7d4
 //   "is_completed": true,
 //   "total_bytes": 276284233,
 //   "downloaded_bytes": 276284233,
