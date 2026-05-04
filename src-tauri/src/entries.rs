@@ -36,7 +36,7 @@ impl EntryInfo {
         };
 
         raw_name
-            .trim_matches(|c| c == '.' || c == ' ')
+            .trim_matches(|c: char| c == '.' || c.is_whitespace())
             .chars()
             .map(|c| {
                 let code = c as u32;
