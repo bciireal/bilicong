@@ -3,6 +3,7 @@
 mod adb;
 mod entries;
 mod mix_media;
+mod utils;
 
 fn log_init() {
     use tracing_subscriber::filter::{EnvFilter, LevelFilter};

@@ -53,6 +53,7 @@ struct Base {
     title: String,
     ep: Ep,
     cover: String,
+    time_create_stamp: u64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -82,5 +83,6 @@ pub fn parse(quality_path: &str, entry_data: &str) -> Result<EntryInfo> {
         uploader,
         cover_url: data.cover,
         media_path: quality_path.to_string(),
+        download_ts: data.time_create_stamp / 1000,
     })
 }

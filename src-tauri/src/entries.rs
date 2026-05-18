@@ -8,6 +8,7 @@ use tracing::warn;
 
 use crate::adb;
 use crate::mix_media;
+use crate::utils::file_set_time;
 
 mod fallback;
 mod v1_episode;
@@ -22,6 +23,7 @@ pub struct EntryInfo {
     uploader: String,
     cover_url: String,
     media_path: String,
+    download_ts: u64,
 }
 
 impl EntryInfo {
@@ -125,6 +127,9 @@ pub async fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> 
     )
     .await?;
 
+    let output_path = target_path.join(entry_info.file_name());
+
+    let output_path_move = output_path.clone();
     spawn_blocking(move || {
         mix_media::mix_media(
             &video_temp_path,
@@ -133,12 +138,18 @@ pub async fn pull_media(sid: &str, target_path: &str, entry_info: EntryInfo) -> 
             } else {
                 None
             },
-            &target_path.join(entry_info.file_name()),
+            &output_path_move,
         )
     })
     .await??;
 
-    // Ensure `temp_path` are dropped after transcoding is complete
-    drop(temp_path);
+    let output_path_move = output_path.clone();
+    let download_ts_move = entry_info.download_ts;
+    if let Err(e) =
+        spawn_blocking(move || file_set_time(output_path_move, download_ts_move)).await?
+    {
+        warn!("faild to set time for {entry_info:?} : {e:?}");
+    }
+
     Ok(())
 }

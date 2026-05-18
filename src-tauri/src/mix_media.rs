@@ -1,6 +1,6 @@
 use std::{path::Path, process::Command};
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use std::os::windows::process::CommandExt;
 
 use anyhow::{Result, anyhow, ensure};
@@ -9,7 +9,7 @@ fn get_ffmpeg_command() -> Command {
     let mut command = Command::new("ffmpeg");
 
     // https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags#:~:text=CREATE_NO_WINDOW,0x08000000
-    #[cfg(target_os = "windows")]
+    #[cfg(windows)]
     command.creation_flags(0x0800_0000);
 
     command

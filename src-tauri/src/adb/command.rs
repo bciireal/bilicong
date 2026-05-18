@@ -1,7 +1,7 @@
 use std::ffi::OsString;
 use std::process::{Command, Output};
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use std::os::windows::process::CommandExt;
 
 use anyhow::{Result, ensure};
@@ -31,7 +31,7 @@ impl AdbCommand {
         }
 
         // https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags#:~:text=CREATE_NO_WINDOW,0x08000000
-        #[cfg(target_os = "windows")]
+        #[cfg(windows)]
         command.creation_flags(0x0800_0000);
 
         Self { command }

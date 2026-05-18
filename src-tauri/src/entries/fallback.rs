@@ -11,5 +11,6 @@ pub fn fallback_parser(quality_path: &str, entry_data: &str) -> EntryInfo {
         uploader: "--".into(),
         cover_url: "data:,".into(),
         media_path: quality_path.to_string(),
+        download_ts: 0,
     }
 }
