@@ -61,13 +61,7 @@ pub async fn probe_entry(sid: &str, page_path: &str) -> Result<EntryInfo> {
         .iter()
         .map(|p| p.trim_end_matches('/'))
         .filter_map(|p| p.rsplit_once('/'))
-        .filter_map(|(base, q)| {
-            if let Ok(q) = q.parse::<i32>() {
-                Some((base, q))
-            } else {
-                None
-            }
-        })
+        .filter_map(|(base, q)| q.parse::<i32>().map_or(None, |q| Some((base, q))))
         .max_by(|a, b| a.1.cmp(&b.1))
         .ok_or_else(|| anyhow!("path {page_path} have no video dir"))?;
 
