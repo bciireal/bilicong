@@ -41,7 +41,7 @@ impl AdbCommand {
         Self::new_with_sid::<Option<OsString>, OsString>(None)
     }
 
-    pub fn as_mut_inner(&mut self) -> &mut Command {
+    pub const fn as_mut_inner(&mut self) -> &mut Command {
         &mut self.command
     }
 
