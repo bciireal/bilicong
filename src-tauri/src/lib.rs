@@ -1,5 +1,3 @@
-#![warn(clippy::pedantic)]
-
 mod adb;
 mod entries;
 mod mix_media;

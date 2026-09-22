@@ -16,6 +16,8 @@ defineProps({
       class="w-20 opacity-75"
       :class="spinIcon ? 'animate-spin' : ''"
     />
-    <p class="mx-10">{{ msg === "" ? "无信息" : msg }}</p>
+    <p class="max-w-[70vw] overflow-hidden whitespace-nowrap text-ellipsis">
+      {{ msg === "" ? "无信息" : msg }}
+    </p>
   </div>
 </template>

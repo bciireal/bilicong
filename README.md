@@ -16,7 +16,7 @@ B 站手机版缓存视频导出工具
   - Rust
   - adb
   - ffmpeg
-- `npm i`
+- `npm i --ignore-scripts`
 - `npx tauri dev` (开发) 或 `npx tauri build` (构建)
 
 ## TODO
